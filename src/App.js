@@ -1,23 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from 'react'
+import Content from './components/Content'
+import Header from './components/Header'
+import { useMediaQuery } from '@material-ui/core'
+
+import AppService from './components/AppService'
+const service = new AppService()
 
 function App() {
+  const [matches, setMatches] = useState([])
+  const [leagues, setLeagues] = useState([])
+  const [countries, setCountries] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const phoneScreen = useMediaQuery('(max-width: 425px')
+
+  useEffect(() => {
+    service.getMatches()
+    .then(matches => setMatches(matches))
+    .catch(err => console.error(err))
+
+    service.getLeagues()
+    .then(leagues => setLeagues(leagues))
+    .catch(err => console.error(err))
+
+    service.getCountries()
+    .then(countries => setCountries(countries))
+    .catch(err => console.error(err))
+
+    if (matches && leagues && countries) setLoaded(true)
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {
+        loaded ?
+          <>
+            <Header phoneScreen={phoneScreen} />
+            <Content matches={matches} leagues={leagues} countries={countries} phoneScreen={phoneScreen} />
+          </>
+          : null
+      }
     </div>
   );
 }
